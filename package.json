@@ -17,10 +17,31 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./bun": {
+      "import": {
+        "types": "./dist/bun.d.ts",
+        "default": "./dist/bun.mjs"
+      }
+    },
+    "./cloudflare": {
+      "import": {
+        "types": "./dist/cloudflare.d.ts",
+        "default": "./dist/cloudflare.mjs"
+      }
+    },
+    "./cloudflare2": {
+      "import": {
+        "types": "./dist/cloudflare2.d.ts",
+        "default": "./dist/cloudflare2.mjs"
+      }
     }
   },
   "bin": {
-    "aibridge": "./dist/cli.mjs"
+    "aibridge": "./dist/cli.mjs",
+    "deploy": "./dist/cloudflare.mjs",
+    "cf": "./dist/cloudflare2.mjs",
+    "bun": "./dist/bun.mjs"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -42,6 +63,7 @@
     "publish:edge": "npm publish --tag edge"
   },
   "devDependencies": {
+    "@types/bun": "^1.1.18",
     "@types/minimist": "^1.2.5",
     "@types/node": "^22.10.5",
     "@vitest/coverage-v8": "^2.1.8",

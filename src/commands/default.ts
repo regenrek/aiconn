@@ -32,7 +32,6 @@ export default async function defaultMain(rawArgs: Argv) {
 
   const app = createApp();
 
-  // 1) Define a handler for POST /v1/chat/completions
   app.use(
     "/v1/chat/completions",
     defineEventHandler(async (event) => {
@@ -193,10 +192,8 @@ export default async function defaultMain(rawArgs: Argv) {
     server = createHttpServer(toNodeListener(app));
   }
 
-  server.listen(PORT, () => {
+  server.listen(PORT, "0.0.0.0", () => {
     const protocol = args.https ? "https" : "http";
-    consola.success(
-      `AIBridge server running on ${protocol}://localhost:${PORT}`
-    );
+    consola.success(`AIBridge server running on ${protocol}://0.0.0.0:${PORT}`);
   });
 }
