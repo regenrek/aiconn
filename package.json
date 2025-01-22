@@ -1,8 +1,8 @@
 {
-  "name": "aibridge",
+  "name": "aiconn",
   "version": "0.0.1",
   "description": "Handle LLM API requests in one place. Designed for speed and ease of use.",
-  "repository": "regenrek/aibridge",
+  "repository": "regenrek/aiconn",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -20,7 +20,7 @@
     }
   },
   "bin": {
-    "aibridge": "./dist/index.mjs"
+    "aiconn": "./dist/index.mjs"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

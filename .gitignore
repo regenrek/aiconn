@@ -6,7 +6,7 @@ coverage/
 .env
 .cursorrules
 .cursorignore
-aibridge
+aiconn
 docs
 .hide
 .data

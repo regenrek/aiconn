@@ -1,6 +1,6 @@
-# aibridge
+# aiconn
 
-[![npm (tag)](https://img.shields.io/npm/v/aibridge)](https://www.npmjs.com/package/aibridge)
+[![npm (tag)](https://img.shields.io/npm/v/aiconn)](https://www.npmjs.com/package/aiconn)
 
 >Handle LLM API requests in one place. Designed for speed and ease of use.
 
@@ -27,7 +27,11 @@ This package acts as a bridge (proxy) between DeepSeek and Cursor, allowing us t
 
 Start a terminal
 ```
-npx aibridge
+npx aiconn
+```
+or
+```
+npm -g aiconn
 ```
 
 >Cursor doesn't allow localhost as a base URL, so we need to create a reverse proxy. You can use Ngrok for example:
