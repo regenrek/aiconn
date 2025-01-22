@@ -56,12 +56,6 @@
   },
   "packageManager": "pnpm@9.14.4",
   "dependencies": {
-    "consola": "^3.3.3",
-    "dotenv": "^16.4.7",
-    "h3": "^1.13.1",
-    "mri": "^1.2.0",
-    "ofetch": "^1.4.1",
-    "pathe": "^2.0.1",
-    "selfsigned": "^2.4.1"
+    "h3": "^1.13.1"
   }
 }

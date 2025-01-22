@@ -1,5 +1,4 @@
 export { afterEach, describe, it, expect, vi } from "vitest";
-import { consola } from "consola";
 import { beforeAll, beforeEach, vi } from "vitest";
 
 beforeAll(() => {
@@ -10,5 +9,5 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  consola.mockTypes(() => vi.fn());
+  //consola.mockTypes(() => vi.fn());
 });
