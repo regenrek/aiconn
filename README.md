@@ -16,6 +16,7 @@
 This package acts as a bridge (proxy) between DeepSeek and Cursor, allowing us to use Composer and ensuring it works as expected, like any other API model in Cursor
 
 >Hint: Cursor now supports 'DeepSeek-v3' in pro, so you don't need to use it via the API.
+>Update: Cursor now supports 'DeepSeek-r1' in pro, so you don't need to use it via the API.
 
 ## Prerequisites
 
