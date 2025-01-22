@@ -7,34 +7,20 @@
 ## Features
 
 - 🎯 **Simple**: Minimal configuration required
-- 🔄 **Flexible**: Support for multiple LLM providers
 - 🚀 **Fast**: Built on H3, a high-performance server framework
-
+~~- 🔄 **Flexible**: Support for multiple LLM providers~~
+- Currently working with **deepseek-v3** and **deepseek-r1**
 
 ## Prerequisites
 
 1. Create an API Key at [Deepseek Platform](https://platform.deepseek.com/api_keys)
+2. Signup for a free account on ngrok [Ngrok](https://ngrok.com)
 
 ## Usage
 
 ```
 npx aibridge
-```
-
-## Usage with `.env`
-
-create or update your .env file
-
-```
-npx aibridge
-```
-
-### Deepseek-r1
-
-```
-API_KEY=sk-aec...
-BASE_URL=https://api.deepseek.com
-DEFAULT_MODEL=deepseek-reasoner
+ngrok http 6000
 ```
 
 ## License

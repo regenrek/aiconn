@@ -279,10 +279,19 @@ app.use(
 // Turn H3 app into a Bun fetch handler
 const handler = toWebHandler(app);
 
-// Start the Bun server
-console.log("Starting Bun server on port 6000...");
+// Extract port and hostname from command-line arguments
+const args = process.argv.slice(2);
+const port = args.includes("--port")
+  ? Number.parseInt(args[args.indexOf("--port") + 1], 10)
+  : 6000;
+const hostname = args.includes("--hostname")
+  ? args[args.indexOf("--hostname") + 1]
+  : "0.0.0.0";
+
+// Start the Bun server with configurable port and hostname
+console.log(`Starting Bun server on ${hostname}:${port}...`);
 Bun.serve({
-  hostname: "0.0.0.0",
-  port: 6000,
+  hostname: hostname,
+  port: port,
   fetch: (req) => handler(req),
 });

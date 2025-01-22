@@ -32,7 +32,7 @@
     "build": "unbuild",
     "dev": "vitest",
     "lint": "eslint --cache . && prettier -c src test",
-    "start": "tsx src/cli.ts",
+    "start": "tsx src/index.ts",
     "lint:fix": "eslint --cache . --fix && prettier -c src test -w",
     "release": "npm test && npm run build && npm publish",
     "test": "npm run lint && npm run test:types && vitest run --coverage",
