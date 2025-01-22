@@ -2,10 +2,13 @@ import {
   createApp,
   defineEventHandler,
   readBody,
-  toWebHandler,
   setHeader,
   getMethod,
 } from "h3";
+
+import { createServer } from "node:http";
+import process from "node:process";
+import { toNodeListener } from "h3";
 
 function setCors(event: any) {
   setHeader(event, "Access-Control-Allow-Origin", "*");
@@ -276,10 +279,6 @@ app.use(
   })
 );
 
-// Turn H3 app into a Bun fetch handler
-const handler = toWebHandler(app);
-
-// Extract port and hostname from command-line arguments
 const args = process.argv.slice(2);
 const port = args.includes("--port")
   ? Number.parseInt(args[args.indexOf("--port") + 1], 10)
@@ -288,10 +287,11 @@ const hostname = args.includes("--hostname")
   ? args[args.indexOf("--hostname") + 1]
   : "0.0.0.0";
 
-// Start the Bun server with configurable port and hostname
 console.log(`Starting Bun server on ${hostname}:${port}...`);
-Bun.serve({
-  hostname: hostname,
-  port: port,
-  fetch: (req) => handler(req),
+
+const nodeListener = toNodeListener(app);
+const server = createServer(nodeListener);
+
+server.listen(port, hostname, () => {
+  console.log(`Server is running at http://${hostname}:${port}/`);
 });
