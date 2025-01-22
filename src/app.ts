@@ -2,11 +2,11 @@ import {
   createApp,
   defineEventHandler,
   readBody,
-  toWebHandler,
   setHeader,
   getMethod,
 } from "h3";
 
+/** CORS helper */
 function setCors(event: any) {
   setHeader(event, "Access-Control-Allow-Origin", "*");
   setHeader(event, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -19,6 +19,7 @@ function setCors(event: any) {
   setHeader(event, "Access-Control-Allow-Credentials", "true");
 }
 
+/** DeepSeek response type */
 type DeepseekResponse = {
   error?: { message: string; type: string };
   model?: string;
@@ -48,29 +49,28 @@ function getContentField(model: string): string {
   return conf?.contentField || "content";
 }
 
-/** If Cursor calls "gpt-3.5-turbo" or "gpt-4", override them with "deepseek-chat" or "deepseek-reasoner". */
+/** Map model from Cursor to DeepSeek */
 function mapIncomingModel(originalModel: string): string {
   if (originalModel === "gpt-3.5-turbo") return "deepseek-chat";
   if (originalModel === "gpt-4") return "deepseek-reasoner";
   return originalModel;
 }
 
-// Create H3 app
-const app = createApp();
+/** Create your H3 app */
+export const app = createApp();
 
+/** Optional: /v1/models endpoint */
 app.use(
   "/v1/models",
   defineEventHandler((event) => {
     setCors(event);
 
-    // Handle preflight
     if (getMethod(event) === "OPTIONS") {
       event.node.res.statusCode = 204;
       event.node.res.end();
       return;
     }
 
-    // Return a sample list (like the Go code)
     return {
       object: "list",
       data: [
@@ -91,6 +91,7 @@ app.use(
   })
 );
 
+/** Main /v1/chat/completions route */
 app.use(
   "/v1/chat/completions",
   defineEventHandler(async (event) => {
@@ -102,6 +103,7 @@ app.use(
       return;
     }
 
+    // Auth
     const authHeader = event.node.req.headers["authorization"];
     const headerApiKey = authHeader?.startsWith("Bearer ")
       ? authHeader.slice(7)
@@ -122,6 +124,7 @@ app.use(
       ? headerApiKey
       : `Bearer ${headerApiKey}`;
 
+    // Read JSON body
     let body: any;
     try {
       body = await readBody(event);
@@ -136,27 +139,28 @@ app.use(
     }
 
     const originalModel = body.model || "gpt-3.5-turbo";
-
-    const messages = body?.messages ?? [];
-    const stream = !!body?.stream;
-
+    const messages = body.messages ?? [];
+    const stream = !!body.stream;
     const deepseekModel = mapIncomingModel(originalModel);
 
-    const url = "https://api.deepseek.com/v1/chat/completions";
+    // Forward to DeepSeek
     let deepSeekResp: Response;
     try {
-      deepSeekResp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: formattedAuthToken,
-        },
-        body: JSON.stringify({
-          model: deepseekModel,
-          messages,
-          stream,
-        }),
-      });
+      deepSeekResp = await fetch(
+        "https://api.deepseek.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: formattedAuthToken,
+          },
+          body: JSON.stringify({
+            model: deepseekModel,
+            messages,
+            stream,
+          }),
+        }
+      );
     } catch (error_: any) {
       event.node.res.statusCode = 502;
       return {
@@ -167,6 +171,7 @@ app.use(
       };
     }
 
+    // STREAMING (SSE) logic:
     if (stream) {
       if (!deepSeekResp.ok) {
         let errData = null;
@@ -184,26 +189,25 @@ app.use(
         );
       }
 
+      // Set SSE headers
       event.node.res.setHeader("Content-Type", "text/event-stream");
       event.node.res.setHeader("Connection", "keep-alive");
       event.node.res.setHeader("Cache-Control", "no-cache");
-      // Optionally chunked:
-      event.node.res.setHeader("Transfer-Encoding", "chunked");
 
+      // We do a minimal pass-through of lines
       let leftover = "";
       try {
         for await (const chunk of deepSeekResp.body as any) {
           const chunkStr = leftover + new TextDecoder().decode(chunk);
           const lines = chunkStr.split("\n");
-          leftover = lines.pop() || ""; // keep any partial line
+          leftover = lines.pop() || "";
 
           for (let line of lines) {
             line = line.trim();
             if (!line) continue;
-
-            // Typically, DeepSeek might already send "data: {...}" lines.
+            // Just pass line + blank line
             event.node.res.write(line + "\n");
-            event.node.res.write("\n"); // blank line (SSE requires two newlines)
+            event.node.res.write("\n");
           }
         }
 
@@ -211,19 +215,19 @@ app.use(
           event.node.res.write(`data: ${leftover.trim()}\n\n`);
         }
         event.node.res.write("data: [DONE]\n\n");
-      } catch (error_: any) {
-        console.error("Error streaming from DeepSeek:", error_);
+      } catch (error_) {
+        console.error("Stream error from DeepSeek:", error_);
       }
 
-      // End SSE
+      // End
       event.node.res.end();
       return;
     }
 
-    // 6) Non-streaming flow: read entire JSON
-    let deepseekJson: DeepseekResponse | null = null;
+    // NON-STREAM logic
+    let dsJson: DeepseekResponse;
     try {
-      deepseekJson = (await deepSeekResp.json()) as DeepseekResponse;
+      dsJson = (await deepSeekResp.json()) as DeepseekResponse;
     } catch {
       event.node.res.statusCode = 502;
       return {
@@ -234,11 +238,10 @@ app.use(
       };
     }
 
-    // If error, forward the status + JSON
-    if (!deepSeekResp.ok || deepseekJson?.error) {
+    if (!deepSeekResp.ok || dsJson?.error) {
       event.node.res.statusCode = deepSeekResp.status || 400;
       return (
-        deepseekJson || {
+        dsJson ?? {
           error: {
             message: "Unknown error calling DeepSeek",
             type: "api_error",
@@ -249,40 +252,25 @@ app.use(
 
     const contentField = getContentField(deepseekModel);
 
-    // Build an OpenAI-like response
     return {
       id: `gen-${Date.now()}-${crypto.randomUUID()}`,
       object: "chat.completion",
       created: Math.floor(Date.now() / 1000),
-      model: originalModel, // <-- return "gpt-3.5-turbo" or "gpt-4" here
-      choices: (deepseekJson.choices ?? []).map((choice) => ({
+      model: originalModel,
+      choices: (dsJson.choices ?? []).map((choice) => ({
         index: choice.index,
         message: {
           role: choice.message.role,
           content:
             choice.message[contentField] ?? choice.message.content ?? "DUMMY",
-          refusal: null,
         },
-        logprobs: null,
         finish_reason: choice.finish_reason,
       })),
-
       usage: {
-        prompt_tokens: deepseekJson.usage?.prompt_tokens ?? 0,
-        completion_tokens: deepseekJson.usage?.completion_tokens ?? 0,
-        total_tokens: deepseekJson.usage?.total_tokens ?? 0,
+        prompt_tokens: dsJson.usage?.prompt_tokens ?? 0,
+        completion_tokens: dsJson.usage?.completion_tokens ?? 0,
+        total_tokens: dsJson.usage?.total_tokens ?? 0,
       },
     };
   })
 );
-
-// Turn H3 app into a Bun fetch handler
-const handler = toWebHandler(app);
-
-// Start the Bun server
-console.log("Starting Bun server on port 6000...");
-Bun.serve({
-  hostname: "0.0.0.0",
-  port: 6000,
-  fetch: (req) => handler(req),
-});

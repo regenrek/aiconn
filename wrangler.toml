@@ -1,5 +1,5 @@
 name = "aibridge-cloudflare"
-main = "dist/cloudflare2.mjs"     # or "cloudflare.ts" if compiled to .mjs at build
+main = "dist/index.mjs"           # or "cloudflare.ts" if compiled to .mjs at build
 compatibility_date = "2023-08-01"
 
 # Optional: environment variables you want to pass to your worker

@@ -18,7 +18,7 @@
 ## Usage
 
 ```
-npx aibridge -m deepseek-reasoner -u https://api.deepseek.com -k <API_KEY> --port 5000
+npx aibridge
 ```
 
 ## Usage with `.env`
