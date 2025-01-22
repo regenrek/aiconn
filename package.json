@@ -1,6 +1,6 @@
 {
   "name": "aiconn",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Handle LLM API requests in one place. Designed for speed and ease of use.",
   "repository": "regenrek/aiconn",
   "license": "MIT",

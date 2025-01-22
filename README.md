@@ -21,7 +21,6 @@ This package acts as a bridge (proxy) between DeepSeek and Cursor, allowing us t
 
 1. Create an API Key at [Deepseek Platform](https://platform.deepseek.com/api_keys)
 2. Signup for a free account on [ngrok](https://ngrok.com)
-3. Install [bun](https://bun.sh/docs/installation) package manager
 
 ## Usage
 
