@@ -29,9 +29,8 @@ type DeepseekResponse = {
     index: number;
     message: {
       role: string;
-      content?: string;
+      content: string;
       reasoning_content?: string;
-      [key: string]: string | undefined;
     };
     finish_reason: string;
   }>;
@@ -41,15 +40,6 @@ type DeepseekResponse = {
     total_tokens: number;
   };
 };
-
-const modelConfigs = [
-  { model: "deepseek-reasoner", contentField: "reasoning_content" },
-  { model: "deepseek-chat", contentField: "content" },
-];
-function getContentField(model: string): string {
-  const conf = modelConfigs.find((c) => c.model === model);
-  return conf?.contentField || "content";
-}
 
 /** If Cursor calls "gpt-3.5-turbo" or "gpt-4", override them with "deepseek-chat" or "deepseek-reasoner". */
 function mapIncomingModel(originalModel: string): string {
@@ -251,20 +241,18 @@ export default async function defaultMain(rawArgs: Argv) {
         );
       }
 
-      const contentField = getContentField(deepseekModel);
-
       // Build an OpenAI-like response
       return {
         id: `gen-${Date.now()}-${crypto.randomUUID()}`,
         object: "chat.completion",
         created: Math.floor(Date.now() / 1000),
-        model: originalModel, // <-- return "gpt-3.5-turbo" or "gpt-4" here
+        model: originalModel,
         choices: (deepseekJson.choices ?? []).map((choice) => ({
           index: choice.index,
           message: {
             role: choice.message.role,
-            content:
-              choice.message[contentField] ?? choice.message.content ?? "DUMMY",
+            content: choice.message.content ?? "",
+            reasoning_content: choice.message.reasoning_content,
             refusal: null,
           },
           logprobs: null,
