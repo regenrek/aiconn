@@ -1,6 +1,6 @@
 {
   "name": "aiconn",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Handle LLM API requests in one place. Designed for speed and ease of use.",
   "repository": "regenrek/aiconn",
   "license": "MIT",
@@ -20,7 +20,7 @@
     }
   },
   "bin": {
-    "aiconn": "./dist/index.mjs"
+    "aiconn": "./dist/cli.mjs"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -32,7 +32,7 @@
     "build": "unbuild",
     "dev": "vitest",
     "lint": "eslint --cache . && prettier -c src test",
-    "start": "node dist/index.mjs",
+    "start": "tsx src/cli.ts",
     "lint:fix": "eslint --cache . --fix && prettier -c src test -w",
     "release": "npm test && npm run build && npm publish",
     "test": "npm run lint && npm run test:types && vitest run --coverage",
@@ -56,6 +56,8 @@
   },
   "packageManager": "pnpm@9.14.4",
   "dependencies": {
-    "h3": "^1.13.1"
+    "consola": "^3.4.0",
+    "h3": "^1.13.1",
+    "mri": "^1.2.0"
   }
 }
