@@ -5,7 +5,7 @@
 >Handle LLM API requests in one place. Designed for speed and ease of use.
 
 
-**⚠️ Hint:** **Cursor now supports 'DeepSeek-v3' and DeepSeek-r1, so you don't need to use it via the API.**
+**⚠️ Hint:** **Cursor now supports 'DeepSeek-v3' and DeepSeek-r1 out of the box! So you don't need to use it via the API. This repo can be useful for future DeepSeek Models other unsupported models**
 
 ## Features
 
